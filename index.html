@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Habit Tracker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()" title="Menu">☰</button>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">⚡ HabitFlow</div>
+  <div class="sidebar-date" id="sidebar-date-display">Loading...</div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard', this)">
+      <span class="icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" data-page="tracker" onclick="navigate('tracker', this)">
+      <span class="icon">✅</span> Tracker
+    </div>
+    <div class="nav-item" data-page="habits" onclick="navigate('habits', this)">
+      <span class="icon">🎯</span> My Habits
+    </div>
+    <div class="nav-item" data-page="timer" onclick="navigate('timer', this)">
+      <span class="icon">⏱️</span> Focus Timer
+    </div>
+    <div class="nav-item" data-page="analytics" onclick="navigate('analytics', this)">
+      <span class="icon">📈</span> Analytics
+    </div>
+    <div class="nav-item" data-page="settings" onclick="navigate('settings', this)">
+      <span class="icon">⚙️</span> Settings
+    </div>
+  </nav>
+  <div style="padding: 16px; border-top: 1px solid var(--border);">
+    <div style="font-size: 11px; color: var(--text3); text-align: center;">HabitFlow v1.0</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="page active" id="page-dashboard">
+    <div class="header">
+      <div class="header-left">
+        <h1 id="greeting-text">Good Morning! 👋</h1>
+        <p id="today-date-display">Loading date...</p>
+      </div>
+      <div class="header-right">
+        <div class="live-clock" id="live-clock">00:00:00</div>
+        <button class="btn btn-primary" onclick="openAddHabit()">+ Add Habit</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card purple">
+        <div class="stat-label">Today's Progress</div>
+        <div class="stat-value" id="stat-progress">0%</div>
+        <div class="stat-sub" id="stat-progress-sub">0 of 0 done</div>
+        <div class="progress-bar-wrap" style="margin-top:10px;">
+          <div class="progress-bar-fill" id="stat-progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Best Streak</div>
+        <div class="stat-value" id="stat-streak">0 🔥</div>
+        <div class="stat-sub" id="stat-streak-sub">Days in a row</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">Total Habits</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-sub">Active habits tracking</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">Monthly Score</div>
+        <div class="stat-value" id="stat-monthly">0%</div>
+        <div class="stat-sub" id="stat-monthly-sub">This month overall</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">📅 Today's Habits <span class="tag tag-purple" id="today-tag">0 remaining</span></div>
+      <button class="btn btn-ghost btn-sm" onclick="navigate('tracker', document.querySelector('[data-page=tracker]'))">View Full Tracker →</button>
+    </div>
+    <div id="today-habits-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;"></div>
+
+    <div class="section-grid">
+      <div class="chart-section">
+        <div class="section-header" style="margin-bottom:8px;">
+          <div class="section-title">📊 This Week</div>
+        </div>
+        <div class="chart-bars" id="week-chart-bars"></div>
+        <div style="display:flex;gap:4px;margin-top:4px;" id="week-chart-labels"></div>
+      </div>
+
+      <div class="chart-section">
+        <div class="section-header" style="margin-bottom:12px;">
+          <div class="section-title">🔥 Current Streaks</div>
+        </div>
+        <div id="streaks-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-tracker">
+    <div class="header">
+      <div class="header-left">
+        <h1>Monthly Tracker</h1>
+        <p id="tracker-subtitle">Check off your habits each day</p>
+      </div>
+      <div class="header-right">
+        <div class="live-clock" id="live-clock-2">00:00:00</div>
+      </div>
+    </div>
+
+    <div class="tracker-card">
+      <div class="tracker-header">
+        <div class="month-nav">
+          <button onclick="changeTrackerMonth(-1)">‹</button>
+          <div class="month-label" id="tracker-month-label">June 2026</div>
+          <button onclick="changeTrackerMonth(1)">›</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div style="display:flex;gap:12px;font-size:11px;color:var(--text3);">
+            <span>✓ Done</span>
+            <span>✗ Missed</span>
+            <span>◻ Empty</span>
+          </div>
+        </div>
+      </div>
+      <div class="tracker-table-wrap">
+        <table class="tracker-table" id="tracker-table">
+          </table>
+      </div>
+      <div class="summary-row" id="tracker-summary-row"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-habits">
+    <div class="header">
+      <div class="header-left">
+        <h1>My Habits</h1>
+        <p>Manage, edit, and organise your habits</p>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-primary" onclick="openAddHabit()">+ Add Habit</button>
+      </div>
+    </div>
+
+    <div id="habits-list-view" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div id="habits-empty" style="text-align:center;padding:48px;color:var(--text3);display:none;">
+      <div style="font-size:48px;margin-bottom:12px;">🎯</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:8px;">No habits yet</div>
+      <div style="font-size:13px;margin-bottom:16px;">Start building your best self</div>
+      <button class="btn btn-primary" onclick="openAddHabit()">+ Add Your First Habit</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-timer">
+    <div class="header">
+      <div class="header-left">
+        <h1>Focus Timer</h1>
+        <p>Pomodoro, custom timers & stopwatch</p>
+      </div>
+    </div>
+
+    <div class="timer-mode-row">
+      <button class="timer-mode-btn active" onclick="setTimerMode('pomodoro', this)">🍅 Pomodoro</button>
+      <button class="timer-mode-btn" onclick="setTimerMode('short', this)">☕ Short Break</button>
+      <button class="timer-mode-btn" onclick="setTimerMode('long', this)">🛋️ Long Break</button>
+      <button class="timer-mode-btn" onclick="setTimerMode('custom', this)">⚙️ Custom</button>
+      <button class="timer-mode-btn" onclick="setTimerMode('stopwatch', this)">⏱️ Stopwatch</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="timer-section" style="display:flex;flex-direction:column;align-items:center;">
+        <div class="timer-label" id="timer-mode-label">FOCUS SESSION</div>
+        <div class="timer-ring-wrap" style="margin:20px 0;">
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <circle class="progress-ring-track" cx="100" cy="100" r="90" />
+            <circle class="progress-ring-fill" id="timer-ring" cx="100" cy="100" r="90"
+              stroke="url(#timerGrad)" stroke-dasharray="565.5" stroke-dashoffset="0"/>
+            <defs>
+              <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#6c63ff"/>
+                <stop offset="100%" style="stop-color:#ff6584"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="timer-center-text">
+            <div class="timer-display" id="timer-display" style="font-size:42px;margin:0;">25:00</div>
+          </div>
+        </div>
+        <div class="focus-task-name" id="focus-task-label">Select a habit to focus on</div>
+        <div class="pomodoro-count" id="pomodoro-count-display">🍅🍅🍅🍅 &nbsp; Session 1</div>
+        <div class="timer-controls">
+          <button class="btn btn-primary" onclick="startStopTimer()">▶ Start</button>
+          <button class="btn btn-ghost" onclick="resetTimer()">↺ Reset</button>
+          <button class="btn btn-ghost" onclick="skipTimer()">⏭ Skip</button>
+        </div>
+        <div style="margin-top:16px;" id="custom-timer-inputs">
+          <div style="display:flex;gap:8px;margin-top:8px;" id="custom-time-row" style="display:none;">
+            <input type="number" class="form-input" id="custom-min" placeholder="Min" min="1" max="120" style="width:80px;text-align:center;" value="25">
+            <input type="number" class="form-input" id="custom-sec" placeholder="Sec" min="0" max="59" style="width:80px;text-align:center;" value="0">
+            <button class="btn btn-ghost btn-sm" onclick="applyCustomTime()">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="timer-section" style="margin-bottom:16px;">
+          <div class="section-title" style="margin-bottom:12px;">🎯 Focus on a Habit</div>
+          <div id="timer-habit-select" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div class="timer-section">
+          <div class="section-title" style="margin-bottom:12px;">📊 Today's Sessions</div>
+          <div id="timer-sessions-log" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;"></div>
+          <div id="timer-sessions-empty" style="font-size:12px;color:var(--text3);text-align:center;padding:16px;">No sessions yet today</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-analytics">
+    <div class="header">
+      <div class="header-left">
+        <h1>Analytics</h1>
+        <p>Deep dive into your habit data</p>
+      </div>
+    </div>
+    <div id="analytics-content"></div>
+  </div>
+
+  <div class="page" id="page-settings">
+    <div class="header">
+      <div class="header-left">
+        <h1>Settings</h1>
+        <p>Customise your tracker experience</p>
+      </div>
+    </div>
+    <div style="max-width:600px;display:flex;flex-direction:column;gap:16px;">
+      <div class="tracker-card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;">👤 Profile</div>
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input type="text" class="form-input" id="settings-name" placeholder="Enter your name" value="User">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Daily Habit Goal</label>
+          <input type="number" class="form-input" id="settings-goal" placeholder="e.g. 10" value="10" min="1" max="50">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Profile</button>
+      </div>
+
+      <div class="tracker-card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;">⏱️ Timer Settings</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Pomodoro (min)</label>
+            <input type="number" class="form-input" id="settings-pomodoro" value="25" min="5" max="60">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Short Break (min)</label>
+            <input type="number" class="form-input" id="settings-short" value="5" min="1" max="30">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Long Break (min)</label>
+            <input type="number" class="form-input" id="settings-long" value="15" min="5" max="60">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sessions before long break</label>
+            <input type="number" class="form-input" id="settings-sessions" value="4" min="2" max="8">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="saveTimerSettings()">Save Timer Settings</button>
+      </div>
+
+      <div class="tracker-card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;">🎨 Appearance</div>
+        <div class="form-group">
+          <label class="form-label">Accent Color</label>
+          <div class="color-row">
+            <div class="color-pick selected" style="background:#6c63ff;" data-color="#6c63ff" onclick="setAccent(this)"></div>
+            <div class="color-pick" style="background:#43e97b;" data-color="#43e97b" onclick="setAccent(this)"></div>
+            <div class="color-pick" style="background:#f6d365;" data-color="#f6d365" onclick="setAccent(this)"></div>
+            <div class="color-pick" style="background:#ff6584;" data-color="#ff6584" onclick="setAccent(this)"></div>
+            <div class="color-pick" style="background:#38bdf8;" data-color="#38bdf8" onclick="setAccent(this)"></div>
+            <div class="color-pick" style="background:#fb923c;" data-color="#fb923c" onclick="setAccent(this)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tracker-card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;">💾 Data</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="exportData()">📤 Export JSON</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📋 Export CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="importDataPrompt()">📥 Import JSON</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmReset()">🗑️ Reset All Data</button>
+        </div>
+        <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
+      </div>
+    </div>
+  </div>
+
+</div><div class="modal-overlay" id="habit-modal">
+  <div class="modal">
+    <div class="modal-title" id="habit-modal-title">✨ Add New Habit</div>
+    <div class="form-group">
+      <label class="form-label">Habit Name *</label>
+      <input type="text" class="form-input" id="habit-name-input" placeholder="e.g. Morning Run, Read 30 mins">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Pick an Emoji</label>
+      <div class="emoji-grid" id="emoji-grid"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-input" id="habit-cat-input">
+        <option value="health">💪 Health & Fitness</option>
+        <option value="mind">🧠 Mind & Learning</option>
+        <option value="productivity">🎯 Productivity</option>
+        <option value="wellbeing">🌿 Wellbeing</option>
+        <option value="finance">💰 Finance</option>
+        <option value="social">👥 Social</option>
+        <option value="other">⭐ Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div class="color-row" id="habit-color-row"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note / Description</label>
+      <textarea class="form-input" id="habit-note-input" placeholder="Optional details..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('habit-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveHabit()" id="save-habit-btn">Add Habit</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
